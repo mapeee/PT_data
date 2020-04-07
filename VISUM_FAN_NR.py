@@ -22,7 +22,7 @@ from pathlib import Path
 path = Path.home() / 'python32' / 'python_dir.txt'
 f = open(path, mode='r')
 for i in f: path = i
-path = Path.joinpath(Path(r'C:'+path),'VISUM_FAN.txt')
+path = Path.joinpath(Path(r'C:'+path),'PT_data','VISUM_FAN.txt')
 f = path.read_text()
 f = f.split('\n')
 

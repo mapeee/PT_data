@@ -4,7 +4,6 @@ Created on Sat Apr  4 21:32:49 2020
 
 @author: marcus
 """
-
 import xlwt
 import time
 import math
@@ -29,7 +28,6 @@ df_links = pd.read_excel(r'C:'+f[2], sheet_name='Strecken')
 wb = xlwt.Workbook()
 ws = wb.add_sheet("VISUM_Vol", cell_overwrite_ok=True)
 results ='C:'+f[3]
-
 
 ##functions
 def string_list(df,column):
@@ -56,6 +54,7 @@ for i in df_VISUM_FAN_Nr:
 df_links['FAN_von'] = [list(set(b).difference(set(a))) for a, b in zip(df_links.von, df_links.FAN_von)]
 df_links['FAN_nach'] = [list(set(b).difference(set(a))) for a, b in zip(df_links.nach, df_links.FAN_nach)]
 
+print("--join der FAN_Nummern an die Strecken erfolgreich--")
 
 ##insert column_names and values to list
 ws.write(0, 0, "Nr")
@@ -67,19 +66,23 @@ ws.write(0, 4, "Linien")
 t = []  ##new python list to fill in line volumes
 for i in df_links.itertuples():
     t.append([i.strecke,i.VONKNOTNR,i.NACHKNOTNR,0,""])
-    
+ 
+n = 0
 ##Volumes
 for name, sheet in df_Vol.items():
-    if "Kanten" in name:
+    if "Kanten" in name and "_U_" in name:
         df_Vol_line = df_Vol[name]
         df_Vol_line = df_Vol_line.rename(columns={"Belastung MF": "Belastung_MF"})
         for i in df_Vol_line.itertuples():
+            n+=1
+            # print("row: "+str(n))
+            if n==100:pass
             vol = df_links[(df_links.apply(lambda x: i.Von in x.FAN_von, axis=1))&(df_links.apply(lambda x: i.Nach in x.FAN_nach, axis=1))]
             if len(vol)==0:
-                print (i.Von, i.Nach)
-            for row in vol.index:
-                t[row][3] = t[row][3]+i.Belastung_MF
-                try: t[row][4] = t[row][4]+str(i.Linien)
+                print (i.Von, i.Nach, i.Linien)
+            for row_t in vol.index:
+                t[row_t][3] = t[row_t][3]+i.Belastung_MF
+                try: t[row_t][4] = t[row_t][4]+str(i.Linien)
                 except:pass
         
         row = 1
