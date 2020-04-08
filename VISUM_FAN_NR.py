@@ -15,8 +15,8 @@ from qgis.core import QgsDistanceArea, QgsPointXY
 distance = QgsDistanceArea()
 
 from pyproj import Proj, transform
-input_proj = Proj(init='epsg:31467') ##gauss_krueger_coordinate zone 3
-output_proj = Proj(init='epsg:25832') ##UTM zone 32N
+input_proj = Proj('epsg:31467') ##gauss_krueger_coordinate zone 3
+output_proj = Proj('epsg:25832') ##UTM zone 32N
 
 from pathlib import Path
 path = Path.home() / 'python32' / 'python_dir.txt'
