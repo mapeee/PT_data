@@ -13,10 +13,8 @@ pd.set_option('display.width', 120)
 
 from qgis.core import QgsDistanceArea, QgsPointXY
 distance = QgsDistanceArea()
+from pyproj import Transformer
 
-from pyproj import Proj, transform
-input_proj = Proj('epsg:31467') ##gauss_krueger_coordinate zone 3
-output_proj = Proj('epsg:25832') ##UTM zone 32N
 
 from pathlib import Path
 path = Path.home() / 'python32' / 'python_dir.txt'
@@ -46,7 +44,8 @@ def dist_test(XY_FAN,XY_VISUM):
     Y = Y.replace(".","")
     Y = Y+"00000"
     Y = int(Y[:7])
-    x_out, y_out = transform(input_proj, output_proj, X, Y)
+    transformer = Transformer.from_crs("epsg:31467", "epsg:25832") ##gauss_krueger_coordinate zone 3 (31467), UTM zone 32N (25832)
+    x_out, y_out = transformer.transform(Y, X)
  
     point1 = QgsPointXY(XY_VISUM[6],XY_VISUM[7])
     point2 = QgsPointXY(x_out,y_out)
