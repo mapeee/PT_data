@@ -108,19 +108,19 @@ for i in df_VISUM:
     #hits
     hit = df_FAN[df_FAN['DHID'].str.contains(":"+str(i[2])+":")].head(1)
     dist = dist_test(hit,i)
-    if len(hit)>0 and dist[0]<500:
+    if len(hit)>0 and dist[0]<2000:
         writer(row,a,dist,hit)
         row+=1
         continue
     hit = df_FAN[df_FAN['DHID_2'].str.contains(":"+str(i[2])+":")].head(1)
     dist = dist_test(hit,i)
-    if len(hit)>0 and dist[0]<500:
+    if len(hit)>0 and dist[0]<2000:
         writer(row,a,dist,hit)
         row+=1
-        continue
-    hit = df_FAN[df_FAN['Name + Ort'].str.contains(re.escape(i[3].replace(',','')))].head(1)
+        continue  
+    hit = df_FAN[df_FAN['Name + Ort'].str.contains(re.escape(i[1].replace(',','')))].head(1)
     dist = dist_test(hit,i)
-    if len(hit)>0 and dist[0]<500:
+    if len(hit)>0 and dist[0]<1000:
         writer(row,a,dist,hit)
         row+=1
         continue
