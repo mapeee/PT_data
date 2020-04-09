@@ -83,7 +83,9 @@ n = 0
 file = open('C:'+f[4],'w')
 ##Volumes
 for name, sheet in df_Vol.items():
+    # if "_Bus" in name:continue
     if "Kanten" in name:
+        print("--beginne mit: "+name+"--")
         df_Vol_line = df_Vol[name]
         df_Vol_line = df_Vol_line.rename(columns={"Belastung MF": "Belastung_MF", "Von Haltestelle": "VonHst", "Nach Haltestelle":"NachHst"})
         for i in df_Vol_line.itertuples():
@@ -93,8 +95,8 @@ for name, sheet in df_Vol.items():
             if "_U_" in name: vol = df_links[(df_links.apply(lambda x: i.Von in x.HHA_von, axis=1))&(df_links.apply(lambda x: i.Nach in x.HHA_nach, axis=1))]
             else: vol = df_links[(df_links.apply(lambda x: i.Von in x.FAN_von, axis=1))&(df_links.apply(lambda x: i.Nach in x.FAN_nach, axis=1))]
             if len(vol)==0:
-                file.write(str(i.Von)+" "+str(i.Nach)+" "+i.VonHst+" "+i.NachHst+" "+str(i.Linien)+"\n")
-                print (i.Von, i.Nach, i.VonHst, i.NachHst, i.Linien)
+                file.write(str(i.Von)+"; "+str(i.Nach)+"; "+i.VonHst+"; "+i.NachHst+"; "+str(i.Linien)+"; "+str(i.Belastung_MF)+"\n")
+                print (i.Von, i.Nach, i.VonHst, i.NachHst, i.Linien, i.Belastung_MF)
             for row_t in vol.index:
                 t[row_t][3] = t[row_t][3]+i.Belastung_MF
                 if "_Bus" in name: t[row_t][4] = t[row_t][4]+i.Belastung_MF

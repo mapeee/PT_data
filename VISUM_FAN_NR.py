@@ -117,7 +117,7 @@ for i in df_VISUM:
         writer(row,a,dist,hit)
         row+=1
         continue  
-    hit = df_FAN[df_FAN['Name + Ort'].str.contains(re.escape(i[1].replace(',','')))].head(1)
+    hit = df_FAN.loc[df_FAN['Name + Ort'] == i[1].replace(',','')].head(1)
     dist = dist_test(hit,i)
     if len(hit)>0 and dist[0]<1000:
         writer(row,a,dist,hit)
@@ -128,8 +128,7 @@ for i in df_VISUM:
         name = i[3]
         row+=1
         continue
-    name = name.replace("Abzw.","Abzweigung")
-    hit = df_FAN[df_FAN['Name'].str.contains(re.escape(name))].head(1)
+    hit = df_FAN.loc[df_FAN['Name'] == name.replace("Abzw.","Abzweigung")].head(1)
     dist = dist_test(hit,i)
     if len(hit)>0 and dist[0]<500:
         writer(row,a,dist,hit)
