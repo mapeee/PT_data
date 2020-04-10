@@ -4,7 +4,6 @@ Spyder Editor
 """
 
 import xlwt
-import re
 import time
 start_time = time.perf_counter()
 import pandas as pd
@@ -14,7 +13,7 @@ pd.set_option('display.width', 120)
 from qgis.core import QgsDistanceArea, QgsPointXY
 distance = QgsDistanceArea()
 from pyproj import Transformer
-
+transformer = Transformer.from_crs("epsg:31467", "epsg:25832", always_xy=True) ##gauss_krueger_coordinate zone 3 (31467), UTM zone 32N (25832)
 
 from pathlib import Path
 path = Path.home() / 'python32' / 'python_dir.txt'
@@ -33,24 +32,41 @@ ws = wb.add_sheet(f[5])
 results = 'C:'+f[4]
 
 ##functions
-def dist_test(XY_FAN,XY_VISUM):
-    if len(XY_FAN) == 0:
-        return 99999, 0, 0
-    X = str(XY_FAN["GK-X"].iloc[0])
+def project(X,Y):
+    X = str(X)
     X = X.replace(".","")
     X = X+"00000"
     X = int(X[:7])
-    Y = str(XY_FAN["GK-Y"].iloc[0])
+    Y = str(Y)
     Y = Y.replace(".","")
     Y = Y+"00000"
     Y = int(Y[:7])
-    transformer = Transformer.from_crs("epsg:31467", "epsg:25832") ##gauss_krueger_coordinate zone 3 (31467), UTM zone 32N (25832)
-    x_out, y_out = transformer.transform(Y, X)
- 
+    x_out, y_out = transformer.transform(X, Y)
+    return x_out, y_out
+
+def dist_test(XY_FAN,XY_VISUM):
+    if len(XY_FAN) == 0:
+        return 99999, 0, 0
+    xy_out = project(XY_FAN["GK-X"].iloc[0],XY_FAN["GK-Y"].iloc[0])
     point1 = QgsPointXY(XY_VISUM[6],XY_VISUM[7])
-    point2 = QgsPointXY(x_out,y_out)
+    point2 = QgsPointXY(xy_out[0],xy_out[1])
     dist = distance.measureLine(point1, point2)
-    return dist, x_out, y_out
+    return dist, xy_out[0], xy_out[1]
+
+def dist_next(VISUM,FAN):
+    df_FAN = FAN.to_numpy()
+    a = [1000,0,""]
+    for i in df_FAN:
+        XY = project(i[4],i[5])
+        point1 = QgsPointXY(VISUM[6],VISUM[7])
+        point2 = QgsPointXY(XY[0],XY[1])
+        dist = distance.measureLine(point1, point2)
+        if dist < a[0]:
+            No = i[2]
+            if No[0]=="H": No = i[1]
+            if No==0: No = i[1]
+            a = [dist,No,i[8]]
+        return a
 
 def writer(row,a,dist,hit):
     ws.write(row, a+7, dist[0])
@@ -60,7 +76,6 @@ def writer(row,a,dist,hit):
     #more values
     No = hit["Master"].iloc[0]
     if hit["Typ"].iloc[0]=="H": No = hit["HST-Nr"].iloc[0]
-    if hit["Typ"].iloc[0]=="M": No = hit["Master"].iloc[0]
     if No==0: No = hit["HST-Nr"].iloc[0]
     
     ws.write(row, a+1, int(No))
@@ -104,25 +119,28 @@ row = 1
 for i in df_VISUM:    
     for a in range(VISUM_columns):
         ws.write(row, a, i[a])
-    #hits
+    ##part of DHID
     hit = df_FAN[df_FAN['DHID'].str.contains(":"+str(i[2])+":")].head(1)
     dist = dist_test(hit,i)
     if len(hit)>0 and dist[0]<2000:
         writer(row,a,dist,hit)
         row+=1
         continue
+    ##subpart of DHID
     hit = df_FAN[df_FAN['DHID_2'].str.contains(":"+str(i[2])+":")].head(1)
     dist = dist_test(hit,i)
     if len(hit)>0 and dist[0]<2000:
         writer(row,a,dist,hit)
         row+=1
-        continue  
+        continue
+    ##identical name and location
     hit = df_FAN.loc[df_FAN['Name + Ort'] == i[1].replace(',','')].head(1)
     dist = dist_test(hit,i)
     if len(hit)>0 and dist[0]<1000:
         writer(row,a,dist,hit)
         row+=1
         continue
+    ##identical name
     try: name = i[3].split(", ")[1]
     except:
         name = i[3]
@@ -132,6 +150,14 @@ for i in df_VISUM:
     dist = dist_test(hit,i)
     if len(hit)>0 and dist[0]<500:
         writer(row,a,dist,hit)
+        row+=1
+        continue
+    ##closest stop
+    next_No = dist_next(i,df_FAN)
+    if next_No[1] != 0:
+        ws.write(row, a+1, int(next_No[1]))
+        ws.write(row, a+2, next_No[2])
+        ws.write(row, a+7, next_No[0])
         row+=1
         continue
     row+=1
