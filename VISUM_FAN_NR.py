@@ -63,10 +63,10 @@ def dist_next(VISUM,FAN):
         dist = distance.measureLine(point1, point2)
         if dist < a[0]:
             No = i[2]
-            if No[0]=="H": No = i[1]
+            if i[0]=="H": No = i[1]
             if No==0: No = i[1]
             a = [dist,No,i[8]]
-        return a
+    return a
 
 def writer(row,a,dist,hit):
     ws.write(row, a+7, dist[0])
@@ -154,7 +154,7 @@ for i in df_VISUM:
         continue
     ##closest stop
     next_No = dist_next(i,df_FAN)
-    if next_No[1] != 0:
+    if next_No[1] != 0 and next_No[0]<200:
         ws.write(row, a+1, int(next_No[1]))
         ws.write(row, a+2, next_No[2])
         ws.write(row, a+7, next_No[0])
