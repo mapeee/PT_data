@@ -7,19 +7,16 @@ Created on Sat Apr  4 21:32:49 2020
 
 import xlwt
 import time
-import math
 start_time = time.perf_counter()
+import math
 import pandas as pd
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 120)
 
 from pathlib import Path
-path = Path.home() / 'python32' / 'python_dir.txt'
-f = open(path, mode='r')
-for i in f: path = i
-path = Path.joinpath(Path(r'C:'+path),'PT_data','VISUM_Vol.txt')
-f = path.read_text()
-f = f.split('\n')
+f = open(Path.home() / 'python32' / 'python_dir.txt', mode='r')
+path = Path.joinpath(Path(r'C:'+f.readline()),'PT_data','VISUM_Vol.txt')
+f = path.read_text().split('\n')
 
 ##connection to file
 df_Vol = pd.read_excel(r'C:'+f[0], sheet_name = None)
@@ -103,7 +100,7 @@ for name, sheet in df_Vol.items():
                 if "_U_" in name: t[row_t][5] = t[row_t][5]+i.Belastung_MF
                 if "_AKN" in name: t[row_t][6] = t[row_t][6]+i.Belastung_MF
                 if "_S_" in name: t[row_t][7] = t[row_t][7]+i.Belastung_MF
-                try: t[row_t][8] = t[row_t][8]+str(i.Linien)
+                try: t[row_t][8] = t[row_t][8]+", "+str(i.Linien)
                 except:pass
         
         row = 1
