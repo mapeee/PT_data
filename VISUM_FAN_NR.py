@@ -52,7 +52,7 @@ def dist_test(XY_FAN,XY_VISUM):
 
 def dist_next(VISUM,FAN):
     df_FAN = FAN.to_numpy()
-    a = [1000,0,""]
+    a = [1000,0,"",""]
     for i in df_FAN:
         XY = project(i[4],i[5])
         point1 = QgsPointXY(VISUM[6],VISUM[7])
@@ -62,7 +62,7 @@ def dist_next(VISUM,FAN):
             No = i[2]
             if i[0]=="H": No = i[1]
             if No==0: No = i[1]
-            a = [dist,No,i[8]]
+            a = [dist,No,i[8],i[9]]
     return a
 
 def writer(row,a,dist,hit):
@@ -113,7 +113,9 @@ ws.write(0, column+6, "Distance")
 ##insert_values
 df_VISUM = df_VISUM.to_numpy()
 row = 1
-for i in df_VISUM:    
+for i in df_VISUM: 
+    # if i[0]!=6680075:continue
+    # hh
     for a in range(VISUM_columns):
         ws.write(row, a, i[a])
     ##part of DHID
@@ -139,10 +141,7 @@ for i in df_VISUM:
         continue
     ##identical name
     try: name = i[3].split(", ")[1]
-    except:
-        name = i[3]
-        row+=1
-        continue
+    except: name = i[3]
     hit = df_FAN.loc[df_FAN['Name'] == name.replace("Abzw.","Abzweigung")].head(1)
     dist = dist_test(hit,i)
     if len(hit)>0 and dist[0]<500:
@@ -154,6 +153,7 @@ for i in df_VISUM:
     if next_No[1] != 0 and next_No[0]<200:
         ws.write(row, a+1, int(next_No[1]))
         ws.write(row, a+2, next_No[2])
+        ws.write(row, a+3, next_No[3])
         ws.write(row, a+7, next_No[0])
         row+=1
         continue
