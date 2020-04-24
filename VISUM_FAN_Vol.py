@@ -47,12 +47,15 @@ df_links['HHA_nach'] = df_links['nach']
 ##VISUM_FAN
 for i in df_VISUM_FAN_Nr:
     if math.isnan(i[8]) == False:
-        df_links['FAN_von'] = df_links['FAN_von'].apply(lambda x: [int(i[8]) if e==i[0] else e for e in x])   
-        df_links['FAN_nach'] = df_links['FAN_nach'].apply(lambda x: [int(i[8]) if e==i[0] else e for e in x])
+        df_links['FAN_von'] = df_links['FAN_von'].apply(lambda x: [str(i[8]) if e==i[0] else e for e in x])   
+        df_links['FAN_nach'] = df_links['FAN_nach'].apply(lambda x: [str(i[8]) if e==i[0] else e for e in x])
     if math.isnan(i[15]) == False:
-        df_links['HHA_von'] = df_links['HHA_von'].apply(lambda x: [int(i[15]) if e==i[0] else e for e in x])   
-        df_links['HHA_nach'] = df_links['HHA_nach'].apply(lambda x: [int(i[15]) if e==i[0] else e for e in x])
-
+        df_links['HHA_von'] = df_links['HHA_von'].apply(lambda x: [str(i[15]) if e==i[0] else e for e in x])   
+        df_links['HHA_nach'] = df_links['HHA_nach'].apply(lambda x: [str(i[15]) if e==i[0] else e for e in x])
+df_links['FAN_von'] = df_links['FAN_von'].apply(lambda x: [int(float(e)) for e in x])
+df_links['FAN_nach'] = df_links['FAN_nach'].apply(lambda x: [int(float(e)) for e in x])
+df_links['HHA_von'] = df_links['HHA_von'].apply(lambda x: [int(float(e)) for e in x])
+df_links['HHA_nach'] = df_links['HHA_nach'].apply(lambda x: [int(float(e)) for e in x])
 
 df_links['FAN_von'] = [list(set(b).difference(set(a))) for a, b in zip(df_links.von, df_links.FAN_von)]
 df_links['FAN_nach'] = [list(set(b).difference(set(a))) for a, b in zip(df_links.nach, df_links.FAN_nach)]
@@ -80,20 +83,20 @@ n = 0
 file = open('C:'+f[4],'w')
 ##Volumes
 for name, sheet in df_Vol.items():
-    # if "_Bus" in name:continue
+    # if "_Bus" not in name:continue
     if "Kanten" in name:
         print("--beginne mit: "+name+"--")
         df_Vol_line = df_Vol[name]
         df_Vol_line = df_Vol_line.rename(columns={"Belastung MF": "Belastung_MF", "Von Haltestelle": "VonHst", "Nach Haltestelle":"NachHst"})
         for i in df_Vol_line.itertuples():
+            # if 10042 !=i.Von: continue
+            # else:hh  
             n+=1
-            # print("row: "+str(n))
-            if n==100:pass
             if "_U_" in name: vol = df_links[(df_links.apply(lambda x: i.Von in x.HHA_von, axis=1))&(df_links.apply(lambda x: i.Nach in x.HHA_nach, axis=1))]
             else: vol = df_links[(df_links.apply(lambda x: i.Von in x.FAN_von, axis=1))&(df_links.apply(lambda x: i.Nach in x.FAN_nach, axis=1))]
             if len(vol)==0:
                 file.write(str(i.Von)+"; "+str(i.Nach)+"; "+i.VonHst+"; "+i.NachHst+"; "+str(i.Linien)+"; "+str(i.Belastung_MF)+"\n")
-                print (i.Von, i.Nach, i.VonHst, i.NachHst, i.Linien, i.Belastung_MF)
+                print (i.Von, i.Nach, i.VonHst," --- ", i.NachHst, i.Linien, i.Belastung_MF)
             for row_t in vol.index:
                 t[row_t][3] = t[row_t][3]+i.Belastung_MF
                 if "_Bus" in name: t[row_t][4] = t[row_t][4]+i.Belastung_MF
