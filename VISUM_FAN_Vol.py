@@ -73,17 +73,18 @@ ws.write(0, 4, "Vol_Bus")
 ws.write(0, 5, "Vol_U")
 ws.write(0, 6, "Vol_A")
 ws.write(0, 7, "Vol_S")
-ws.write(0, 8, "Linien")
+ws.write(0, 8, "Vol_RV")
+ws.write(0, 9, "Linien")
 
 t = []  ##new python list to fill in line volumes
 for i in df_links.itertuples():
-    t.append([i.strecke,i.VONKNOTNR,i.NACHKNOTNR,0,0,0,0,0,""])
+    t.append([i.strecke,i.VONKNOTNR,i.NACHKNOTNR,0,0,0,0,0,0,""])
  
 n = 0
 file = open('C:'+f[4],'w')
 ##Volumes
 for name, sheet in df_Vol.items():
-    # if "_Bus" not in name:continue
+    if "_Bus" in name:continue
     if "Kanten" in name:
         print("--beginne mit: "+name+"--")
         df_Vol_line = df_Vol[name]
@@ -103,7 +104,8 @@ for name, sheet in df_Vol.items():
                 if "_U_" in name: t[row_t][5] = t[row_t][5]+i.Belastung_MF
                 if "_AKN" in name: t[row_t][6] = t[row_t][6]+i.Belastung_MF
                 if "_S_" in name: t[row_t][7] = t[row_t][7]+i.Belastung_MF
-                try: t[row_t][8] = t[row_t][8]+", "+str(i.Linien)
+                if "_RBSH" in name or "_ME" in name or "_EVB" in name or "_erixx" in name or "_NBE" in name: t[row_t][8] = t[row_t][8]+i.Belastung_MF
+                try: t[row_t][9] = t[row_t][9] + str(i.Linien) + ", "
                 except:pass
         
         row = 1
@@ -117,6 +119,7 @@ for name, sheet in df_Vol.items():
             ws.write(row, 6, t[row-1][6])
             ws.write(row, 7, t[row-1][7])
             ws.write(row, 8, t[row-1][8])
+            ws.write(row, 9, t[row-1][9])
             row+=1
     
 ##output
