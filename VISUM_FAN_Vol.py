@@ -5,7 +5,7 @@ Created on Sat Apr  4 21:32:49 2020
 @author: marcus
 """
 
-import xlwt
+import xlsxwriter
 import time
 start_time = time.perf_counter()
 import math
@@ -14,18 +14,20 @@ pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 120)
 
 from pathlib import Path
-f = open(Path.home() / 'python32' / 'python_dir.txt', mode='r')
-path = Path.joinpath(Path(r'C:'+f.readline()),'PT_data','VISUM_Vol.txt')
+path = Path.home() / 'python32' / 'python_dir.txt'
+f = open(path, mode='r')
+for i in f: path = i
+path = Path.joinpath(Path(path),'PT_data','VISUM_Vol.txt')
 f = path.read_text().split('\n')
 
 ##connection to file
-df_Vol = pd.read_excel(r'C:'+f[0], sheet_name = None)
-df_VISUM_FAN_Nr = pd.read_excel(r'C:'+f[1], sheet_name='VISUM_FAN').to_numpy()
-df_links = pd.read_excel(r'C:'+f[2], sheet_name='Strecken')
+df_Vol = pd.read_excel(f[0], sheet_name = None)
+df_VISUM_FAN_Nr = pd.read_excel(f[1], sheet_name='VISUM_FAN').to_numpy()
+df_links = pd.read_excel(f[2], sheet_name='Strecken')
 
-wb = xlwt.Workbook()
-ws = wb.add_sheet("VISUM_Vol", cell_overwrite_ok=True)
-results ='C:'+f[3]
+results = f[3]
+wb = xlsxwriter.Workbook(results)
+ws = wb.add_worksheet("VISUM_Vol")
 
 ##functions
 def string_list(df,column):
@@ -81,7 +83,7 @@ for i in df_links.itertuples():
     t.append([i.strecke,i.VONKNOTNR,i.NACHKNOTNR,0,0,0,0,0,0,""])
  
 n = 0
-file = open('C:'+f[4],'w')
+file = open(f[4],'w')
 ##Volumes
 for name, sheet in df_Vol.items():
     if "_Bus" in name:continue
@@ -124,5 +126,5 @@ for name, sheet in df_Vol.items():
     
 ##output
 file.close()
-wb.save(results)
+wb.close()
 print("Script finished after: "+str(int(time.perf_counter())-int(start_time))+" seconds")
