@@ -83,7 +83,7 @@ n = 0
 file = open(f[4],'w')
 ##Volumes
 for name, sheet in df_Vol.items():
-    if "_U" not in name:continue
+    # if "_U" not in name:continue
     if "Kanten" in name:
         print("--beginne mit: "+name+"--")
         df_Vol_line = df_Vol[name]
@@ -95,7 +95,7 @@ for name, sheet in df_Vol.items():
             vol = df_links[(df_links.apply(lambda x: i.Von in x.FAN_von, axis=1))&(df_links.apply(lambda x: i.Nach in x.FAN_nach, axis=1))]
             if len(vol)==0:
                 file.write(str(i.Von)+"; "+str(i.Nach)+"; "+i.VonHst+"; "+i.NachHst+"; "+str(i.Linien)+"; "+str(i.Belastung_MF)+"\n")
-                if int(i.Belastung_MF) >1000: print (i.Von, i.Nach, i.VonHst," --- ", i.NachHst, i.Linien, i.Belastung_MF)
+                if int(i.Belastung_MF) >600: print (i.Index, i.Von, i.Nach, i.VonHst," --- ", i.NachHst, i.Linien, i.Belastung_MF)
             for row_t in vol.index:
                 t[row_t][3] = t[row_t][3]+i.Belastung_MF
                 if "_Bus" in name: t[row_t][4] = t[row_t][4]+i.Belastung_MF
